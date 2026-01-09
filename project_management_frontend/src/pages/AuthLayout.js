@@ -57,7 +57,7 @@ function AuthLayout({ title, subtitle, children, footer }) {
               </div>
               <div>
                 <h3 className="auth2-benefit-title">Secure by default</h3>
-                <p className="auth2-benefit-desc">Token-based sessions with a path to full backend integration.</p>
+                <p className="auth2-benefit-desc">Token-based sessions with secure, authenticated API access.</p>
               </div>
             </div>
 

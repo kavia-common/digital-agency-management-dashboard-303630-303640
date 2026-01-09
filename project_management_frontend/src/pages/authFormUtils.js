@@ -21,7 +21,7 @@ export function validateLogin(data) {
   else if (!isValidEmail(data.email)) errors.email = 'Please enter a valid email';
 
   if (!data.password) errors.password = 'Password is required';
-  else if (String(data.password).length < 6) errors.password = 'Password must be at least 6 characters';
+  else if (String(data.password).length < 8) errors.password = 'Password must be at least 8 characters';
 
   return errors;
 }

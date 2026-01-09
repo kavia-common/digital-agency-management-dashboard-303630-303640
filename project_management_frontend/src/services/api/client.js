@@ -1,121 +1,64 @@
-// PUBLIC_INTERFACE
-/**
- * Base API client for making HTTP requests
- * Reads API base URL from environment variable
- */
-
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
+import { del, get, post, put } from './http';
 
 // PUBLIC_INTERFACE
 /**
- * Makes an HTTP request to the API
- * @param {string} endpoint - API endpoint path
- * @param {Object} options - Fetch options (method, headers, body, etc.)
- * @returns {Promise<Object>} Response data
+ * Clients API (CRUD) wired to backend.
  */
-async function apiRequest(endpoint, options = {}) {
-  const url = `${API_BASE_URL}${endpoint}`;
-  
-  const defaultHeaders = {
-    'Content-Type': 'application/json',
-  };
 
-  const config = {
-    ...options,
-    headers: {
-      ...defaultHeaders,
-      ...options.headers,
-    },
-  };
-
-  // Add authorization token if available
-  const token = localStorage.getItem('auth_token');
-  if (token) {
-    config.headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  try {
-    const response = await fetch(url, config);
-
-    // Some backends may return empty bodies or non-JSON on errors; parse defensively.
-    const contentType = response.headers.get('content-type') || '';
-    let data = null;
-
-    if (contentType.includes('application/json')) {
-      data = await response.json();
-    } else {
-      const text = await response.text();
-      data = text ? { message: text } : {};
-    }
-
-    if (!response.ok) {
-      throw new Error(data?.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return data;
-  } catch (error) {
-    console.error('API request failed:', error);
-    throw error;
-  }
+// PUBLIC_INTERFACE
+/**
+ * List clients.
+ * @returns {Promise<Array>}
+ */
+export async function listClients() {
+  return get('/clients');
 }
 
 // PUBLIC_INTERFACE
 /**
- * Makes a GET request
- * @param {string} endpoint - API endpoint path
- * @param {Object} options - Additional fetch options
- * @returns {Promise<Object>} Response data
+ * Get client by id.
+ * @param {string} id
+ * @returns {Promise<Object>}
  */
-export async function get(endpoint, options = {}) {
-  return apiRequest(endpoint, { ...options, method: 'GET' });
+export async function getClient(id) {
+  return get(`/clients/${id}`);
 }
 
 // PUBLIC_INTERFACE
 /**
- * Makes a POST request
- * @param {string} endpoint - API endpoint path
- * @param {Object} data - Request body data
- * @param {Object} options - Additional fetch options
- * @returns {Promise<Object>} Response data
+ * Create client.
+ * @param {Object} payload
+ * @returns {Promise<Object>}
  */
-export async function post(endpoint, data, options = {}) {
-  return apiRequest(endpoint, {
-    ...options,
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
+export async function createClient(payload) {
+  return post('/clients', payload);
 }
 
 // PUBLIC_INTERFACE
 /**
- * Makes a PUT request
- * @param {string} endpoint - API endpoint path
- * @param {Object} data - Request body data
- * @param {Object} options - Additional fetch options
- * @returns {Promise<Object>} Response data
+ * Update client.
+ * @param {string} id
+ * @param {Object} payload
+ * @returns {Promise<Object>}
  */
-export async function put(endpoint, data, options = {}) {
-  return apiRequest(endpoint, {
-    ...options,
-    method: 'PUT',
-    body: JSON.stringify(data),
-  });
+export async function updateClient(id, payload) {
+  return put(`/clients/${id}`, payload);
 }
 
 // PUBLIC_INTERFACE
 /**
- * Makes a DELETE request
- * @param {string} endpoint - API endpoint path
- * @param {Object} options - Additional fetch options
- * @returns {Promise<Object>} Response data
+ * Delete client.
+ * @param {string} id
+ * @returns {Promise<void>}
  */
-export async function del(endpoint, options = {}) {
-  return apiRequest(endpoint, { ...options, method: 'DELETE' });
+export async function deleteClient(id) {
+  return del(`/clients/${id}`);
 }
 
 export default {
-  get,
-  post,
-  put,
-  delete: del,
+  listClients,
+  getClient,
+  createClient,
+  updateClient,
+  deleteClient,
 };
