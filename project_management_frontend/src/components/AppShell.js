@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { BarChart3, FolderKanban, Users, Settings, LogOut } from 'lucide-react';
 import Icon from './Icon';
 import Button from './Button';
@@ -9,11 +9,26 @@ import './AppShell.css';
 // PUBLIC_INTERFACE
 /**
  * AppShell provides the authenticated layout with sidebar navigation.
+ * Adds responsive collapsed sidebar behavior and subtle route transitions.
  * @returns {JSX.Element}
  */
 function AppShell() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    const update = () => {
+      // Desktop collapse breakpoint (keeps sidebar usable but reduces width)
+      const shouldCollapse = window.innerWidth < 1140;
+      setCollapsed(shouldCollapse);
+    };
+    update();
+    window.addEventListener('resize', update, { passive: true });
+    return () => window.removeEventListener('resize', update);
+  }, []);
 
   const onLogout = async () => {
     await logout();
@@ -22,8 +37,18 @@ function AppShell() {
 
   const displayName = user?.full_name || user?.name || user?.email || 'Account';
 
+  const links = useMemo(
+    () => [
+      { to: '/app/dashboard', label: 'Dashboard', icon: BarChart3 },
+      { to: '/app/projects', label: 'Projects', icon: FolderKanban },
+      { to: '/app/clients', label: 'Clients', icon: Users },
+      { to: '/app/settings', label: 'Settings', icon: Settings },
+    ],
+    []
+  );
+
   return (
-    <div className="appShell">
+    <div className={`appShell ${collapsed ? 'isCollapsed' : ''}`}>
       <aside className="appShell-sidebar" aria-label="Primary">
         <div className="appShell-brand">
           <div className="appShell-mark" aria-hidden="true" />
@@ -34,22 +59,13 @@ function AppShell() {
         </div>
 
         <nav className="appShell-nav">
-          <NavLink to="/app/dashboard" className={({ isActive }) => `appShell-link ${isActive ? 'isActive' : ''}`}>
-            <Icon icon={BarChart3} />
-            Dashboard
-          </NavLink>
-          <NavLink to="/app/projects" className={({ isActive }) => `appShell-link ${isActive ? 'isActive' : ''}`}>
-            <Icon icon={FolderKanban} />
-            Projects
-          </NavLink>
-          <NavLink to="/app/clients" className={({ isActive }) => `appShell-link ${isActive ? 'isActive' : ''}`}>
-            <Icon icon={Users} />
-            Clients
-          </NavLink>
-          <NavLink to="/app/settings" className={({ isActive }) => `appShell-link ${isActive ? 'isActive' : ''}`}>
-            <Icon icon={Settings} />
-            Settings
-          </NavLink>
+          {links.map((l) => (
+            <NavLink key={l.to} to={l.to} className={({ isActive }) => `appShell-link ${isActive ? 'isActive' : ''}`}>
+              <Icon icon={l.icon} />
+              <span className="appShell-linkLabel">{l.label}</span>
+              {collapsed ? <span className="appShell-tooltip">{l.label}</span> : null}
+            </NavLink>
+          ))}
         </nav>
 
         <div className="appShell-account">
@@ -57,16 +73,18 @@ function AppShell() {
             <div className="appShell-accountName">{displayName}</div>
             <div className="appShell-accountEmail">{user?.email || ''}</div>
           </div>
-          <Button variant="outline" size="sm" onClick={onLogout}>
+          <Button variant="outline" size="sm" onClick={onLogout} aria-label="Log out">
             <Icon icon={LogOut} size={16} />
-            Logout
+            <span className="appShell-linkLabel">Logout</span>
           </Button>
         </div>
       </aside>
 
       <main className="appShell-main">
         <div className="appShell-content">
-          <Outlet />
+          <div key={location.pathname} className="routeFrame">
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>

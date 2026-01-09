@@ -4,6 +4,7 @@ import Button from '../components/Button';
 import Icon from '../components/Icon';
 import InputField from '../components/InputField';
 import InlineNotice from '../components/InlineNotice';
+import Modal from '../components/Modal';
 import { createProject, deleteProject, listProjects, updateProject } from '../services/api/projects';
 import './AppPages.css';
 
@@ -263,76 +264,72 @@ function ProjectsPage() {
         )}
       </section>
 
-      {modalOpen ? (
-        <div className="modalBackdrop" role="dialog" aria-modal="true" aria-label="Project editor">
-          <div className="modal">
-            <div className="modalHeader">
-              <div>
-                <div className="modalTitle">{editing ? 'Edit Project' : 'New Project'}</div>
-                <div className="modalSub">Keep details lean—update anytime.</div>
-              </div>
-              <Button variant="ghost" onClick={closeModal}>
-                Close
-              </Button>
+      <Modal open={modalOpen} ariaLabel="Project editor" onClose={closeModal}>
+        <div className="modalHeader">
+          <div>
+            <div className="modalTitle">{editing ? 'Edit Project' : 'New Project'}</div>
+            <div className="modalSub">Keep details lean—update anytime.</div>
+          </div>
+          <Button variant="ghost" onClick={closeModal}>
+            Close
+          </Button>
+        </div>
+
+        {formError ? <InlineNotice title="Save failed" message={formError} variant="error" /> : null}
+
+        <div className="modalBody">
+          <InputField
+            label="Name"
+            name="name"
+            value={form.name}
+            onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+            required
+          />
+          <InputField
+            label="Description"
+            name="description"
+            value={form.description}
+            onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
+          />
+
+          <div className="twoCol">
+            <div>
+              <label className="selectLabel" htmlFor="project-status">
+                Status
+              </label>
+              <select
+                id="project-status"
+                className="select"
+                value={form.status}
+                onChange={(e) => setForm((prev) => ({ ...prev, status: e.target.value }))}
+              >
+                <option value="active">active</option>
+                <option value="completed">completed</option>
+                <option value="paused">paused</option>
+              </select>
             </div>
 
-            {formError ? <InlineNotice title="Save failed" message={formError} variant="error" /> : null}
-
-            <div className="modalBody">
-              <InputField
-                label="Name"
-                name="name"
-                value={form.name}
-                onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-                required
-              />
-              <InputField
-                label="Description"
-                name="description"
-                value={form.description}
-                onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-              />
-
-              <div className="twoCol">
-                <div>
-                  <label className="selectLabel" htmlFor="project-status">
-                    Status
-                  </label>
-                  <select
-                    id="project-status"
-                    className="select"
-                    value={form.status}
-                    onChange={(e) => setForm((prev) => ({ ...prev, status: e.target.value }))}
-                  >
-                    <option value="active">active</option>
-                    <option value="completed">completed</option>
-                    <option value="paused">paused</option>
-                  </select>
-                </div>
-
-                <InputField
-                  label="Budget"
-                  name="budget"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={form.budget}
-                  onChange={(e) => setForm((prev) => ({ ...prev, budget: e.target.value }))}
-                />
-              </div>
-            </div>
-
-            <div className="modalFooter">
-              <Button variant="outline" onClick={closeModal}>
-                Cancel
-              </Button>
-              <Button variant="primary" onClick={onSave}>
-                Save
-              </Button>
-            </div>
+            <InputField
+              label="Budget"
+              name="budget"
+              type="number"
+              min="0"
+              step="0.01"
+              value={form.budget}
+              onChange={(e) => setForm((prev) => ({ ...prev, budget: e.target.value }))}
+            />
           </div>
         </div>
-      ) : null}
+
+        <div className="modalFooter">
+          <Button variant="outline" onClick={closeModal}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={onSave}>
+            Save
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { CheckCircle, Shield, Sparkles } from 'lucide-react';
 import Icon from '../components/Icon';
 import './AuthLayout.css';
@@ -16,13 +16,58 @@ import { getApiModeLabel } from '../services/api/mode';
  * @returns {JSX.Element}
  */
 function AuthLayout({ title, subtitle, children, footer }) {
+  const rootRef = useRef(null);
+
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) return;
+
+    let raf = 0;
+
+    const onMove = (e) => {
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = (e.clientX - cx) / Math.max(1, rect.width);
+      const dy = (e.clientY - cy) / Math.max(1, rect.height);
+
+      const px = Math.max(-1, Math.min(1, dx)) * 10;
+      const py = Math.max(-1, Math.min(1, dy)) * 10;
+
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        el.style.setProperty('--parallax-x', `${px}px`);
+        el.style.setProperty('--parallax-y', `${py}px`);
+      });
+    };
+
+    const onLeave = () => {
+      el.style.setProperty('--parallax-x', `0px`);
+      el.style.setProperty('--parallax-y', `0px`);
+    };
+
+    window.addEventListener('pointermove', onMove, { passive: true });
+    window.addEventListener('pointerleave', onLeave, { passive: true });
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerleave', onLeave);
+    };
+  }, []);
+
   return (
-    <div className="auth2-page">
+    <div className="auth2-page" ref={rootRef}>
       {/* Background motion */}
       <div className="auth2-bg" aria-hidden="true">
-        <div className="auth2-blob auth2-blob-1" />
-        <div className="auth2-blob auth2-blob-2" />
-        <div className="auth2-grid" />
+        <div className="auth2-bgParallax">
+          <div className="auth2-blob auth2-blob-1" />
+          <div className="auth2-blob auth2-blob-2" />
+          <div className="auth2-grid" />
+        </div>
       </div>
 
       <div className="auth2-container">

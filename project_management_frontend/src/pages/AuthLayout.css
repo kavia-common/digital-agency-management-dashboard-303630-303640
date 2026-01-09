@@ -15,6 +15,15 @@
   inset: 0;
   pointer-events: none;
   z-index: 0;
+  transform: translateZ(0);
+}
+
+.auth2-bgParallax {
+  position: absolute;
+  inset: 0;
+  transform: translate3d(var(--parallax-x, 0px), var(--parallax-y, 0px), 0);
+  transition: transform var(--transition-slow);
+  will-change: transform;
 }
 
 .auth2-grid {

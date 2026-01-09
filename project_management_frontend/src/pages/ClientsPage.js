@@ -4,6 +4,7 @@ import Button from '../components/Button';
 import Icon from '../components/Icon';
 import InputField from '../components/InputField';
 import InlineNotice from '../components/InlineNotice';
+import Modal from '../components/Modal';
 import { createClient, deleteClient, listClients, updateClient } from '../services/api/client';
 import './AppPages.css';
 
@@ -243,75 +244,71 @@ function ClientsPage() {
         )}
       </section>
 
-      {modalOpen ? (
-        <div className="modalBackdrop" role="dialog" aria-modal="true" aria-label="Client editor">
-          <div className="modal">
-            <div className="modalHeader">
-              <div>
-                <div className="modalTitle">{editing ? 'Edit Client' : 'New Client'}</div>
-                <div className="modalSub">Keep contact info current to move fast.</div>
-              </div>
-              <Button variant="ghost" onClick={closeModal}>
-                Close
-              </Button>
-            </div>
-
-            {formError ? <InlineNotice title="Save failed" message={formError} variant="error" /> : null}
-
-            <div className="modalBody">
-              <InputField
-                label="Name"
-                name="name"
-                value={form.name}
-                onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-                required
-              />
-              <div className="twoCol">
-                <InputField
-                  label="Email"
-                  name="email"
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
-                />
-                <InputField
-                  label="Phone"
-                  name="phone"
-                  value={form.phone}
-                  onChange={(e) => setForm((prev) => ({ ...prev, phone: e.target.value }))}
-                />
-              </div>
-              <InputField
-                label="Company"
-                name="company"
-                value={form.company}
-                onChange={(e) => setForm((prev) => ({ ...prev, company: e.target.value }))}
-              />
-              <InputField
-                label="Address"
-                name="address"
-                value={form.address}
-                onChange={(e) => setForm((prev) => ({ ...prev, address: e.target.value }))}
-              />
-              <InputField
-                label="Notes"
-                name="notes"
-                value={form.notes}
-                onChange={(e) => setForm((prev) => ({ ...prev, notes: e.target.value }))}
-              />
-            </div>
-
-            <div className="modalFooter">
-              <Button variant="outline" onClick={closeModal}>
-                Cancel
-              </Button>
-              <Button variant="primary" onClick={onSave}>
-                Save
-              </Button>
-            </div>
+      <Modal open={modalOpen} ariaLabel="Client editor" onClose={closeModal}>
+        <div className="modalHeader">
+          <div>
+            <div className="modalTitle">{editing ? 'Edit Client' : 'New Client'}</div>
+            <div className="modalSub">Keep contact info current to move fast.</div>
           </div>
+          <Button variant="ghost" onClick={closeModal}>
+            Close
+          </Button>
         </div>
-      ) : null}
+
+        {formError ? <InlineNotice title="Save failed" message={formError} variant="error" /> : null}
+
+        <div className="modalBody">
+          <InputField
+            label="Name"
+            name="name"
+            value={form.name}
+            onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+            required
+          />
+          <div className="twoCol">
+            <InputField
+              label="Email"
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+            />
+            <InputField
+              label="Phone"
+              name="phone"
+              value={form.phone}
+              onChange={(e) => setForm((prev) => ({ ...prev, phone: e.target.value }))}
+            />
+          </div>
+          <InputField
+            label="Company"
+            name="company"
+            value={form.company}
+            onChange={(e) => setForm((prev) => ({ ...prev, company: e.target.value }))}
+          />
+          <InputField
+            label="Address"
+            name="address"
+            value={form.address}
+            onChange={(e) => setForm((prev) => ({ ...prev, address: e.target.value }))}
+          />
+          <InputField
+            label="Notes"
+            name="notes"
+            value={form.notes}
+            onChange={(e) => setForm((prev) => ({ ...prev, notes: e.target.value }))}
+          />
+        </div>
+
+        <div className="modalFooter">
+          <Button variant="outline" onClick={closeModal}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={onSave}>
+            Save
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }

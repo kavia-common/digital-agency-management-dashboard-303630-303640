@@ -3,22 +3,50 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-md);
-  background-color: rgba(239, 68, 68, 0.1);
-  border: 1px solid var(--error);
-  border-radius: var(--radius-md);
+  background-color: rgba(239, 68, 68, 0.10);
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  border-radius: var(--radius-lg);
   color: var(--error);
   font-size: var(--font-size-sm);
   margin-bottom: var(--spacing-lg);
-  animation: formErrorSlideIn var(--transition-base);
+  animation: formErrorEnter var(--transition-base);
 }
 
-@keyframes formErrorSlideIn {
+@keyframes formErrorEnter {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(-6px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .form-error {
+    animation: formErrorEnter var(--transition-base), formErrorShake 320ms var(--ease-out);
+  }
+
+  @keyframes formErrorShake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-2px);
+    }
+    50% {
+      transform: translateX(2px);
+    }
+    75% {
+      transform: translateX(-1px);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form-error {
+    animation: none !important;
   }
 }
