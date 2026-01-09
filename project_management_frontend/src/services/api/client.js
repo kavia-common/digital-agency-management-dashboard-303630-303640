@@ -36,11 +36,20 @@ async function apiRequest(endpoint, options = {}) {
 
   try {
     const response = await fetch(url, config);
-    
-    const data = await response.json();
+
+    // Some backends may return empty bodies or non-JSON on errors; parse defensively.
+    const contentType = response.headers.get('content-type') || '';
+    let data = null;
+
+    if (contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      const text = await response.text();
+      data = text ? { message: text } : {};
+    }
 
     if (!response.ok) {
-      throw new Error(data.message || `HTTP error! status: ${response.status}`);
+      throw new Error(data?.message || `HTTP error! status: ${response.status}`);
     }
 
     return data;
