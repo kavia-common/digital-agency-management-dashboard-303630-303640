@@ -58,11 +58,27 @@ function Modal({ open, ariaLabel, onClose, children }) {
     }, reduceMotion ? 0 : 10);
 
     const onKeyDown = (e) => {
+      // Always allow Escape to close the modal (even from inside inputs).
       if (e.key === 'Escape') {
         e.stopPropagation();
         onClose?.();
         return;
       }
+
+      // IMPORTANT:
+      // The modal uses a document-level, capture-phase keydown handler for focus trapping.
+      // Some browsers/IMEs can have typing/composition disrupted by global capture handlers.
+      // We only need to trap focus traversal (Tab). For key events coming from editable
+      // elements, we skip our Tab-trap logic and let the browser handle the event normally.
+      const target = e.target;
+      const tag = target && target.tagName ? target.tagName.toLowerCase() : '';
+      const isEditable =
+        tag === 'input' ||
+        tag === 'textarea' ||
+        tag === 'select' ||
+        (target && typeof target.isContentEditable === 'boolean' && target.isContentEditable);
+
+      if (isEditable) return;
 
       if (e.key !== 'Tab') return;
 
